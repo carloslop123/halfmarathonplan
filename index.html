@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0a">
+<title>Sub 1:40 Half Marathon</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface2: #1c1c1c;
+  --border: #2a2a2a;
+  --text: #e8e8e8;
+  --text-dim: #888;
+  --text-muted: #555;
+  --accent: #ff5c35;
+  --accent-glow: rgba(255, 92, 53, 0.15);
+  --green: #22c55e;
+  --green-dim: rgba(34, 197, 94, 0.12);
+  --blue: #3b82f6;
+  --blue-dim: rgba(59, 130, 246, 0.12);
+  --yellow: #eab308;
+  --yellow-dim: rgba(234, 179, 8, 0.1);
+  --purple: #a855f7;
+  --purple-dim: rgba(168, 85, 247, 0.1);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  padding-top: var(--safe-top);
+  padding-bottom: calc(80px + var(--safe-bottom));
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── HEADER ─── */
+.hero {
+  padding: 32px 20px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -60%; left: -20%;
+  width: 140%; height: 200%;
+  background: radial-gradient(ellipse at center, var(--accent-glow) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+  position: relative;
+}
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.2rem;
+  line-height: 1.1;
+  color: #fff;
+  position: relative;
+}
+.hero h1 span { color: var(--accent); }
+.hero-meta {
+  margin-top: 12px;
+  display: flex;
+  gap: 16px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  position: relative;
+}
+.hero-meta span { display: flex; align-items: center; gap: 4px; }
+
+/* ─── PROGRESS BAR ─── */
+.progress-section {
+  padding: 0 20px 20px;
+}
+.progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #ff8c6b);
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ─── WEEK NAV ─── */
+.week-nav {
+  display: flex;
+  gap: 6px;
+  padding: 0 20px 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-snap-type: x mandatory;
+}
+.week-nav::-webkit-scrollbar { display: none; }
+
+.week-pill {
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  padding: 8px 14px;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.week-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 16px rgba(255,92,53,0.3);
+}
+.week-pill.race {
+  background: linear-gradient(135deg, var(--accent), #ff8c6b);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ─── WEEK HEADER ─── */
+.week-header {
+  padding: 0 20px 16px;
+}
+.week-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.4rem;
+  color: #fff;
+}
+.week-dates {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.week-summary {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.week-stat {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  text-align: center;
+}
+.week-stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+}
+.week-stat-label {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+}
+
+/* ─── WORKOUT CARDS ─── */
+.workouts {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.workout-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.workout-card.done {
+  opacity: 0.55;
+  border-color: var(--green);
+}
+.workout-card.done .card-top-bar { background: var(--green); }
+
+.card-top-bar {
+  height: 3px;
+  width: 100%;
+}
+.card-top-bar.hills { background: var(--yellow); }
+.card-top-bar.tempo { background: var(--blue); }
+.card-top-bar.long { background: var(--purple); }
+.card-top-bar.intervals { background: var(--accent); }
+.card-top-bar.steady { background: var(--green); }
+.card-top-bar.race { background: linear-gradient(90deg, var(--accent), #ff8c6b, var(--yellow)); }
+.card-top-bar.sharpen { background: var(--blue); }
+.card-top-bar.shakeout { background: var(--green); }
+
+.card-header {
+  padding: 14px 16px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.card-day-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+.card-type {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #fff;
+  margin-top: 2px;
+}
+.card-distance-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: var(--surface2);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.card-body {
+  padding: 12px 16px;
+}
+
+.workout-details {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+.workout-details .phase {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+}
+.workout-details .phase-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  min-width: 32px;
+  padding-top: 2px;
+}
+.workout-details .phase-text {
+  flex: 1;
+}
+
+.card-targets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+.target-block {
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+.target-label {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.target-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.card-prehab {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(34,197,94,0.06);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(34,197,94,0.1);
+  font-size: 0.7rem;
+  color: var(--green);
+  line-height: 1.5;
+}
+.card-prehab-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  opacity: 0.7;
+}
+
+.card-footer {
+  padding: 0 16px 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+.done-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  font-weight: 500;
+  font-family: 'Sora', sans-serif;
+  cursor: pointer;
+  transition: all 0.25s;
+  -webkit-tap-highlight-color: transparent;
+}
+.done-btn:active { transform: scale(0.96); }
+.done-btn.checked {
+  background: var(--green-dim);
+  border-color: var(--green);
+  color: var(--green);
+}
+.done-btn .check-icon {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.done-btn.checked .check-icon {
+  background: var(--green);
+  border-color: var(--green);
+}
+.done-btn.checked .check-icon::after {
+  content: '✓';
+  font-size: 10px;
+  color: #000;
+  font-weight: 700;
+}
+
+/* ─── RACE CARD SPECIAL ─── */
+.workout-card.race-card {
+  border: 1px solid rgba(255,92,53,0.3);
+  background: linear-gradient(145deg, var(--surface) 0%, rgba(255,92,53,0.05) 100%);
+}
+.race-splits {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+.race-split {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+}
+.race-split:nth-child(1) { background: rgba(59,130,246,0.08); }
+.race-split:nth-child(2) { background: rgba(168,85,247,0.08); }
+.race-split:nth-child(3) { background: rgba(255,92,53,0.08); }
+.split-km {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  min-width: 60px;
+}
+.split-pace {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: #fff;
+}
+.split-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+/* ─── BOTTOM NAV ─── */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  height: calc(64px + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding-left: 20px;
+  padding-right: 20px;
+  z-index: 100;
+}
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 0;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.6rem;
+  font-family: 'Sora', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s;
+}
+.nav-btn.active { color: var(--accent); }
+.nav-btn svg { width: 22px; height: 22px; }
+
+/* ─── VIEWS ─── */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ─── OVERVIEW VIEW ─── */
+.overview-grid {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.overview-week {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.overview-week:active { transform: scale(0.98); }
+.overview-week-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  min-width: 28px;
+}
+.overview-week-info { flex: 1; }
+.overview-week-title { font-size: 0.85rem; font-weight: 500; color: #fff; }
+.overview-week-dates { font-size: 0.7rem; color: var(--text-dim); margin-top: 1px; }
+.overview-week-progress {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.overview-week.all-done .overview-week-progress { color: var(--green); }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.workout-card { animation: fadeUp 0.4s ease both; }
+.workout-card:nth-child(1) { animation-delay: 0s; }
+.workout-card:nth-child(2) { animation-delay: 0.08s; }
+.workout-card:nth-child(3) { animation-delay: 0.16s; }
+.workout-card:nth-child(4) { animation-delay: 0.24s; }
+
+/* Expand/collapse */
+.card-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease; padding: 0 16px; }
+.workout-card.expanded .card-body { max-height: 600px; padding: 12px 16px; }
+.card-header { cursor: pointer; -webkit-tap-highlight-color: transparent; padding-bottom: 14px; }
+.card-chevron {
+  color: var(--text-muted);
+  transition: transform 0.3s ease;
+  font-size: 0.8rem;
+}
+.workout-card.expanded .card-chevron { transform: rotate(180deg); }
+
+/* Extra bottom padding for last card */
+.workouts { padding-bottom: 24px; }
+</style>
+</head>
+<body>
+
+<div id="plan-view" class="view active">
+  <div class="hero">
+    <div class="hero-eyebrow">9-week training block</div>
+    <h1>Sub <span>1:40</span><br>Half Marathon</h1>
+    <div class="hero-meta">
+      <span>🏁 Apr 26, 2026</span>
+      <span>📏 21.1 km</span>
+      <span>⚡ 4:44/km</span>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <div class="progress-label">
+      <span id="progressText">0 / 22 workouts</span>
+      <span id="progressPct">0%</span>
+    </div>
+  </div>
+
+  <div class="week-nav" id="weekNav"></div>
+
+  <div id="weekContent"></div>
+</div>
+
+<div id="overview-view" class="view">
+  <div class="hero" style="padding-bottom:16px">
+    <div class="hero-eyebrow">All Weeks</div>
+    <h1>Plan <span>Overview</span></h1>
+  </div>
+  <div class="overview-grid" id="overviewGrid"></div>
+  <div style="height:24px"></div>
+</div>
+
+<div class="bottom-bar">
+  <button class="nav-btn active" data-view="plan-view" onclick="switchView('plan-view')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+    Week
+  </button>
+  <button class="nav-btn" data-view="overview-view" onclick="switchView('overview-view')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+    Overview
+  </button>
+</div>
+
+<script>
+// ─── DATA ───
+const PLAN = [
+  {
+    id: "wk0", label: "W0", title: "Pre-Block", dates: "Sat Feb 28",
+    workouts: [
+      { date: "Feb 28", day: "Sat", type: "Long Run (block start)", typeClass: "long", distance: "18–20 km",
+        phases: [["WU", "2 km easy"], ["Main", "10 km easy (Z2)"], ["Main", "3 × 10' steady (5' easy between)"], ["CD", "2 km easy"]],
+        pace: "Easy 5:35–6:10/km\nSteady 5:05–5:30/km", hr: "Easy 151–164\nSteady 165–172",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" }
+    ]
+  },
+  {
+    id: "wk1", label: "W1", title: "Building Base", dates: "Mar 2 – Mar 7",
+    workouts: [
+      { date: "Mar 2", day: "Mon", type: "Hills (power)", typeClass: "hills", distance: "8–10 km",
+        phases: [["WU", "15' easy + drills + 4 × 15\" strides"], ["Main", "10 × 60\" uphill hard-controlled (jog/walk down)"], ["CD", "10' easy"]],
+        pace: "Uphill hard-smooth\nForm > pace", hr: "Peaks 182–190 on reps\nEasy 145–160 on WU/CD",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Mar 4", day: "Wed", type: "Tempo blocks", typeClass: "tempo", distance: "10–12 km",
+        phases: [["WU", "15' easy + drills + 3 strides"], ["Main", "2 × 12' tempo (3' easy)"], ["End", "4 × 20\" strides (full easy recovery)"], ["CD", "10' easy"]],
+        pace: "Tempo 4:55–5:05/km", hr: "Tempo 173–182",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Mar 7", day: "Sat", type: "Long Run (progression)", typeClass: "long", distance: "20 km",
+        phases: [["Main", "12 km easy (Z2)"], ["Main", "6 km steady"], ["CD", "2 km easy"]],
+        pace: "Easy 5:35–6:10/km\nSteady 5:05–5:30/km", hr: "Easy 151–164\nSteady 165–172",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" }
+    ]
+  },
+  {
+    id: "wk2", label: "W2", title: "Speed Introduction", dates: "Mar 9 – Mar 14",
+    workouts: [
+      { date: "Mar 9", day: "Mon", type: "Intervals (10k-ish)", typeClass: "intervals", distance: "9–11 km",
+        phases: [["WU", "15' easy + drills + 3 strides"], ["Main", "6 × 3' hard (2' easy jog)"], ["CD", "10' easy"]],
+        pace: "Hard reps ~4:25–4:45/km\n(effort-based)", hr: "Hard 178–188",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Mar 11", day: "Wed", type: "Steady + strides", typeClass: "steady", distance: "10–12 km",
+        phases: [["WU", "10' easy"], ["Main", "45' steady"], ["End", "6 × 20\" strides (full easy recovery)"], ["CD", "5–10' easy"]],
+        pace: "Steady 5:05–5:30/km", hr: "Steady 165–172",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Mar 14", day: "Sat", type: "Long Run (HM taste)", typeClass: "long", distance: "21 km",
+        phases: [["Main", "14 km easy (Z2)"], ["Main", "3 km @ HM pace"], ["CD", "4 km easy"]],
+        pace: "HM pace 4:42–4:48/km", hr: "HM 170–178 (early)\nDrift ok late",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" }
+    ]
+  },
+  {
+    id: "wk3", label: "W3", title: "Sharpening", dates: "Mar 16 – Mar 21",
+    workouts: [
+      { date: "Mar 16", day: "Mon", type: "Hills (long reps)", typeClass: "hills", distance: "9–11 km",
+        phases: [["WU", "15' easy + drills"], ["Main", "6 × 2' uphill hard (jog down)"], ["CD", "10' easy"]],
+        pace: "Hard-smooth uphill\nControlled", hr: "Peaks 182–190",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Mar 18", day: "Wed", type: "Continuous tempo", typeClass: "tempo", distance: "10–12 km",
+        phases: [["WU", "15' easy"], ["Main", "25' tempo"], ["CD", "10' easy"]],
+        pace: "Tempo 4:55–5:05/km", hr: "Tempo 173–182",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Mar 21", day: "Sat", type: "Long Run (2 × 4k HM)", typeClass: "long", distance: "22–23 km",
+        phases: [["Main", "12 km easy"], ["Main", "2 × 4 km @ HM pace (1 km easy between)"], ["CD", "2–3 km easy"]],
+        pace: "HM pace 4:42–4:48/km", hr: "HM 170–178 (early)\n178–184 late ok",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" }
+    ]
+  },
+  {
+    id: "wk4", label: "W4", title: "Race Simulation", dates: "Mar 23 – Mar 28",
+    workouts: [
+      { date: "Mar 23", day: "Mon", type: "Intervals (density)", typeClass: "intervals", distance: "10–12 km",
+        phases: [["WU", "15' easy"], ["Main", "10 × 2' hard (1' easy)"], ["CD", "10' easy"]],
+        pace: "Hard reps ~4:25–4:45/km\n(effort-based)", hr: "Hard 178–188",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Mar 25", day: "Wed", type: "HM sandwich (key)", typeClass: "tempo", distance: "12–14 km",
+        phases: [["WU", "15' easy"], ["Main", "15' HM + 10' tempo + 15' HM (4' easy between)"], ["CD", "10' easy"]],
+        pace: "HM 4:42–4:48/km\nTempo 4:55–5:05/km", hr: "HM 170–178\nTempo 173–182",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Mar 28", day: "Sat", type: "Long Run (8k HM block)", typeClass: "long", distance: "22–23 km",
+        phases: [["Main", "10 km easy"], ["Main", "8 km @ HM pace"], ["CD", "4–5 km easy"]],
+        pace: "HM 4:42–4:48/km", hr: "HM 170–178\nDrift late ok",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" }
+    ]
+  },
+  {
+    id: "wk5", label: "W5", title: "Peak Week", dates: "Mar 30 – Apr 4",
+    workouts: [
+      { date: "Mar 30", day: "Mon", type: "Tempo repeats", typeClass: "tempo", distance: "12–14 km",
+        phases: [["WU", "15' easy"], ["Main", "4 × 8' tempo (2' easy)"], ["CD", "10' easy"]],
+        pace: "Tempo 4:55–5:05/km", hr: "Tempo 173–182",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Apr 1", day: "Wed", type: "Big HM session (key)", typeClass: "tempo", distance: "14–16 km",
+        phases: [["WU", "3 km easy"], ["Main", "3 × 3 km @ HM pace (1 km easy)"], ["CD", "2 km easy"]],
+        pace: "HM 4:42–4:48/km", hr: "HM 170–178 early\n178–184 late ok",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Apr 4", day: "Sat", type: "Long Run (peak)", typeClass: "long", distance: "24 km",
+        phases: [["Main", "16 km easy"], ["Main", "6 km steady"], ["CD", "2 km easy"]],
+        pace: "Easy 5:35–6:10/km\nSteady 5:05–5:30/km", hr: "Easy 151–164\nSteady 165–172",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" }
+    ]
+  },
+  {
+    id: "wk6", label: "W6", title: "Taper Begins", dates: "Apr 6 – Apr 11",
+    workouts: [
+      { date: "Apr 6", day: "Mon", type: "Short hills (sharp)", typeClass: "hills", distance: "8–10 km",
+        phases: [["WU", "15' easy"], ["Main", "10 × 45\" uphill hard-smooth (jog down)"], ["CD", "10' easy"]],
+        pace: "Hard-smooth uphill\nShort & snappy", hr: "Peaks 182–190",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Apr 8", day: "Wed", type: "Tempo touch", typeClass: "tempo", distance: "9–11 km",
+        phases: [["WU", "12' easy"], ["Main", "20' tempo"], ["End", "4 × 20\" strides"], ["CD", "10' easy"]],
+        pace: "Tempo 4:55–5:05/km", hr: "Tempo 173–182",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Apr 11", day: "Sat", type: "Long Run (lighter w/ HM)", typeClass: "long", distance: "20–21 km",
+        phases: [["Main", "14 km easy"], ["Main", "2 × 10' @ HM pace (5' easy between)"], ["CD", "2–3 km easy"]],
+        pace: "HM 4:42–4:48/km", hr: "HM 170–178",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" }
+    ]
+  },
+  {
+    id: "wk7", label: "W7", title: "Taper & Tune", dates: "Apr 13 – Apr 18",
+    workouts: [
+      { date: "Apr 13", day: "Mon", type: "10k-ish tune", typeClass: "intervals", distance: "9–11 km",
+        phases: [["WU", "15' easy"], ["Main", "6 × 3' hard (2' easy)"], ["CD", "10' easy"]],
+        pace: "Hard reps effort-based\n(~4:25–4:45)", hr: "Hard 178–188",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Apr 15", day: "Wed", type: "HM confidence", typeClass: "tempo", distance: "10–12 km",
+        phases: [["WU", "12–15' easy"], ["Main", "2 × 15' @ HM pace (5' easy)"], ["CD", "10' easy"]],
+        pace: "HM 4:42–4:48/km", hr: "HM 170–178",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Apr 18", day: "Sat", type: "Long Run (shorter, crisp)", typeClass: "long", distance: "16–17 km",
+        phases: [["Main", "12 km easy"], ["Main", "3 km @ HM pace"], ["CD", "1–2 km easy"]],
+        pace: "HM 4:42–4:48/km", hr: "HM 170–178",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" }
+    ]
+  },
+  {
+    id: "wk8", label: "Race", title: "Race Week", dates: "Apr 20 – Apr 26",
+    workouts: [
+      { date: "Apr 20", day: "Mon", type: "Sharpen", typeClass: "sharpen", distance: "7–9 km",
+        phases: [["WU", "12' easy"], ["Main", "6 × 2' @ HM pace (2' easy)"], ["CD", "10' easy"]],
+        pace: "HM 4:42–4:48/km", hr: "HM 170–178",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Apr 22", day: "Wed", type: "Short race-pace", typeClass: "sharpen", distance: "7–8 km",
+        phases: [["WU", "2–3 km easy"], ["Main", "3 × 1 km @ HM pace (2–3' easy)"], ["CD", "2 km easy"]],
+        pace: "HM 4:42–4:48/km", hr: "HM 170–178",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Apr 25", day: "Sat", type: "Shakeout (optional)", typeClass: "shakeout", distance: "4–6 km",
+        phases: [["Main", "20–30' very easy"], ["End", "4 × 15\" strides (full recovery)"]],
+        pace: "Very easy\n+ fast-smooth strides", hr: "Easy 145–160",
+        prehab: "Walk 5–8' · TENS 15–20' · Ice 10–12' if irritated" },
+      { date: "Apr 26", day: "Sun", type: "RACE — Half Marathon", typeClass: "race", distance: "21.1 km",
+        isRace: true,
+        splits: [
+          { km: "0–5 km", pace: "4:47–4:50/km", label: "Conservative" },
+          { km: "5–16 km", pace: "4:43–4:46/km", label: "Settle" },
+          { km: "16–21.1 km", pace: "4:38–4:44/km", label: "Push" }
+        ],
+        pace: "Target avg ~4:44/km", hr: "Start 168–176\nSettle 172–180\nPush 178–186",
+        prehab: "Post-race: easy walk + gentle mobility (skip aggressive calf eccentrics day-of)" }
+    ]
+  }
+];
+
+// ─── STATE ───
+let currentWeek = 0;
+let doneState = {};
+
+// Load from memory
+try {
+  const saved = localStorage.getItem('hm_done');
+  if (saved) doneState = JSON.parse(saved);
+} catch(e) {}
+
+function saveDone() {
+  try { localStorage.setItem('hm_done', JSON.stringify(doneState)); } catch(e) {}
+}
+
+function getDoneKey(weekIdx, workoutIdx) {
+  return `${weekIdx}-${workoutIdx}`;
+}
+
+function isDone(weekIdx, workoutIdx) {
+  return !!doneState[getDoneKey(weekIdx, workoutIdx)];
+}
+
+function toggleDone(weekIdx, workoutIdx) {
+  const key = getDoneKey(weekIdx, workoutIdx);
+  doneState[key] = !doneState[key];
+  saveDone();
+  renderWeek(currentWeek);
+  updateProgress();
+  renderOverview();
+}
+
+function totalWorkouts() {
+  return PLAN.reduce((s, w) => s + w.workouts.length, 0);
+}
+
+function totalDone() {
+  let count = 0;
+  PLAN.forEach((w, wi) => w.workouts.forEach((_, woi) => { if (isDone(wi, woi)) count++; }));
+  return count;
+}
+
+function weekDone(weekIdx) {
+  const w = PLAN[weekIdx];
+  let done = 0;
+  w.workouts.forEach((_, i) => { if (isDone(weekIdx, i)) done++; });
+  return done;
+}
+
+// ─── RENDER ───
+function updateProgress() {
+  const done = totalDone();
+  const total = totalWorkouts();
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${done} / ${total} workouts`;
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+function renderWeekNav() {
+  const nav = document.getElementById('weekNav');
+  nav.innerHTML = PLAN.map((w, i) => {
+    const isRace = i === PLAN.length - 1;
+    return `<button class="week-pill ${i === currentWeek ? 'active' : ''} ${isRace ? 'race' : ''}" onclick="selectWeek(${i})">${w.label}</button>`;
+  }).join('');
+}
+
+function selectWeek(idx) {
+  currentWeek = idx;
+  renderWeekNav();
+  renderWeek(idx);
+  // Scroll pill into view
+  const pills = document.querySelectorAll('.week-pill');
+  pills[idx]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+}
+
+function renderWeek(idx) {
+  const w = PLAN[idx];
+  const done = weekDone(idx);
+  const total = w.workouts.length;
+
+  // Calculate total km range
+  const distances = w.workouts.map(wo => {
+    const m = wo.distance.match(/[\d.]+/g);
+    return m ? parseFloat(m[m.length - 1]) : 0;
+  });
+  const totalKm = Math.round(distances.reduce((a, b) => a + b, 0));
+
+  let html = `
+    <div class="week-header">
+      <div class="week-title">${w.title}</div>
+      <div class="week-dates">${w.dates}</div>
+      <div class="week-summary">
+        <div class="week-stat">
+          <div class="week-stat-value">${total}</div>
+          <div class="week-stat-label">Sessions</div>
+        </div>
+        <div class="week-stat">
+          <div class="week-stat-value">~${totalKm}</div>
+          <div class="week-stat-label">Total km</div>
+        </div>
+        <div class="week-stat">
+          <div class="week-stat-value">${done}/${total}</div>
+          <div class="week-stat-label">Done</div>
+        </div>
+      </div>
+    </div>
+    <div class="workouts">
+  `;
+
+  w.workouts.forEach((wo, wi) => {
+    const done = isDone(idx, wi);
+    const isRace = wo.isRace;
+
+    html += `<div class="workout-card ${done ? 'done' : ''} ${isRace ? 'race-card' : ''}" id="card-${idx}-${wi}">`;
+    html += `<div class="card-top-bar ${done ? 'done' : wo.typeClass}"></div>`;
+    html += `<div class="card-header" onclick="toggleExpand(${idx},${wi})">
+      <div>
+        <div class="card-day-date">${wo.day} · ${wo.date}</div>
+        <div class="card-type">${wo.type}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="card-distance-badge">${wo.distance}</div>
+        <span class="card-chevron">▾</span>
+      </div>
+    </div>`;
+
+    html += `<div class="card-body">`;
+
+    if (isRace && wo.splits) {
+      html += `<div class="race-splits">`;
+      wo.splits.forEach(s => {
+        html += `<div class="race-split">
+          <span class="split-km">${s.km}</span>
+          <span class="split-pace">${s.pace}</span>
+          <span class="split-label">${s.label}</span>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+
+    if (wo.phases) {
+      html += `<div class="workout-details">`;
+      wo.phases.forEach(p => {
+        html += `<div class="phase"><span class="phase-label">${p[0]}</span><span class="phase-text">${p[1]}</span></div>`;
+      });
+      html += `</div>`;
+    }
+
+    html += `<div class="card-targets">
+      <div class="target-block">
+        <div class="target-label">Pace</div>
+        <div class="target-value">${wo.pace.replace(/\n/g, '<br>')}</div>
+      </div>
+      <div class="target-block">
+        <div class="target-label">Heart Rate</div>
+        <div class="target-value">${wo.hr.replace(/\n/g, '<br>')}</div>
+      </div>
+    </div>`;
+
+    html += `<div class="card-prehab">
+      <div class="card-prehab-label">Post-run</div>
+      ${wo.prehab}
+    </div>`;
+
+    html += `</div>`; // card-body
+
+    html += `<div class="card-footer">
+      <button class="done-btn ${done ? 'checked' : ''}" onclick="event.stopPropagation();toggleDone(${idx},${wi})">
+        <span class="check-icon"></span>
+        ${done ? 'Done' : 'Mark done'}
+      </button>
+    </div>`;
+
+    html += `</div>`; // workout-card
+  });
+
+  html += `</div>`;
+  document.getElementById('weekContent').innerHTML = html;
+}
+
+function toggleExpand(weekIdx, workoutIdx) {
+  const card = document.getElementById(`card-${weekIdx}-${workoutIdx}`);
+  card.classList.toggle('expanded');
+}
+
+function renderOverview() {
+  const grid = document.getElementById('overviewGrid');
+  grid.innerHTML = PLAN.map((w, i) => {
+    const done = weekDone(i);
+    const total = w.workouts.length;
+    const allDone = done === total;
+    return `<div class="overview-week ${allDone ? 'all-done' : ''}" onclick="switchView('plan-view');selectWeek(${i})">
+      <div class="overview-week-num">${w.label}</div>
+      <div class="overview-week-info">
+        <div class="overview-week-title">${w.title}</div>
+        <div class="overview-week-dates">${w.dates}</div>
+      </div>
+      <div class="overview-week-progress">${allDone ? '✓' : `${done}/${total}`}</div>
+    </div>`;
+  }).join('');
+}
+
+function switchView(viewId) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(viewId).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === viewId));
+  if (viewId === 'overview-view') renderOverview();
+  window.scrollTo(0, 0);
+}
+
+// ─── INIT ───
+renderWeekNav();
+renderWeek(0);
+updateProgress();
+renderOverview();
+
+// Auto-expand first card
+setTimeout(() => {
+  const first = document.getElementById('card-0-0');
+  if (first) first.classList.add('expanded');
+}, 100);
+</script>
+</body>
+</html>
